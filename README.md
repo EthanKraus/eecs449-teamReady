@@ -1,6 +1,8 @@
 # eecs449-teamReady
 This README file serves to explain the purpose and objective of our EECS449 F24 Final Project.
 
+[MORE INFO TO COME HERE]
+
 Group Members:
 - Ethan Kraus
 - Julia Ruan
