@@ -21,7 +21,7 @@ NEXT_PUBLIC_MODEL=gpt-3.5-turbo
 ```   
 
 5. To get your secret OpenAI key, go to the website https://platform.openai.com/api-keys and create a  
-secret key, then paste this value into the corresponding blank in your created .env.local file
+secret key, then paste this value into the corresponding blank in your created .env.local file.
 
 6. Now, you can run the following command to run the project:     
 `npm run dev`
