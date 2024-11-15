@@ -11,7 +11,7 @@ const API_KEY = process.env.NEXT_PUBLIC_API_KEY || 'your-api-key'
 const MODEL = process.env.NEXT_PUBLIC_MODEL || 'gpt-3.5-turbo'
 
 // 只需要机器人头像配置
-const BOT_AVATAR = '/bot-avatar-bg-2.png'
+const BOT_AVATAR = '/bot-avatar-bg.png'
 
 // 添加系统提示
 const SYSTEM_PROMPT = {
@@ -94,11 +94,11 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen">
       {/* 顶部标题栏 */}
-      <header className="flex items-left justify-left p-4 border-b">
+      <header className="flex items-left justify-left p-4 border-b dark:border-zinc-800">
         <div className="w-12 h-12 flex items-center justify-center rounded-full overflow-hidden mr-2 flex-shrink-0 ml-1">
           <Image src={BOT_AVATAR} alt="Bot" width={48} height={48} />
         </div>
-        <h1 className="text-2xl flex items-center justify-center font-normal ml-2">ShopSmart</h1>
+        <h1 className="text-2xl flex items-center justify-center font-normal ml-2 dark:text-white">ShopSmart</h1>
       </header>
 
       {/* 主要聊天区域 */}
@@ -112,7 +112,7 @@ export default function Home() {
                     <Image src={BOT_AVATAR} alt="Bot" width={48} height={48} />
                   </div>
                 )}
-                <span className={`inline-block p-3 rounded-lg ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-300  dark:bg-gray-800 dark:text-gray-200'
+                <span className={`inline-block p-3 rounded-lg ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-300  dark:bg-zinc-800 dark:text-gray-200'
                   }`}>
                   {message.content}
                 </span>
@@ -123,7 +123,7 @@ export default function Home() {
       </div>
 
       {/* 底部输入区域 */}
-      <div className="border-t p-4">
+      <div className="border-t dark:border-zinc-800 p-4">
         <div className="max-w-5xl mx-auto">
           <form onSubmit={handleSubmit} className="flex gap-2">
             <input
@@ -131,7 +131,7 @@ export default function Home() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Type your message..."
-              className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 p-3 border border-gray-300  dark:border-zinc-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-zinc-100 dark:bg-zinc-900 dark:text-gray-200"
             />
             <button
               type="submit"

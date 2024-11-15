@@ -13,7 +13,7 @@
   :root {
     --background: #080808;
     /* chat background */
-    --foreground: #e7e7e7;
+    --foreground: #000000;
     /* ai text color */
   }
 }
