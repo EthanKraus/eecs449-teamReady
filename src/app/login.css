@@ -59,6 +59,7 @@
     outline: none;
     transition: border-color 0.2s ease-in-out;
     caret-color: #007bff;
+    color: black;
 }
 
 .input:focus {
