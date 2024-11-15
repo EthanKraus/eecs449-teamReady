@@ -11,9 +11,9 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #080808;
     /* chat background */
-    --foreground: #0a0a0a;
+    --foreground: #e7e7e7;
     /* ai text color */
   }
 }
