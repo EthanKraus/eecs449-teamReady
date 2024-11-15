@@ -1,42 +1,32 @@
+## Introduction
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
 
-First, download the npm package installer using the following command:
-npm install
+1. Download the npm package installer using the following command:   
+`npm install`  
 
-Second, run npm install axios to download the axios package:
-npm install axios
+2. Run npm install axios to download the axios package:     
+`npm install axios`
 
-Lastly, create a .env.local file and store the following information:
-NEXT_PUBLIC_API_URL=https://api.openai.com/v1/chat/completions
-NEXT_PUBLIC_API_KEY=
+3. Download the proper python packages using pip by running the following command:  
+`pip install -r requirements.txt`
+
+4. Create a .env.local file and store the following information:
+```  
+NEXT_PUBLIC_API_URL=https://api.openai.com/v1/chat/completions    
+NEXT_PUBLIC_API_KEY=[FILL IN WITH OPENAI KEY] 
 NEXT_PUBLIC_MODEL=gpt-3.5-turbo
+```   
 
-To get your secret OpenAI key, go to the website https://platform.openai.com/api-keys and create a 
-secret key, then paste this value into the corresponding blank in your created .env.local file
+5. To get your secret OpenAI key, go to the website https://platform.openai.com/api-keys and create a  
+secret key, then paste this value into the corresponding blank in your created .env.local file.
 
-Now, you can run the following command to run the project
-npm run dev
+6. Now, you can run the following command to run the project:     
+`npm run dev`
 
-
------------------------------------------------------
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+7. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 ## Learn More
 
