@@ -2,7 +2,25 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+First, download the npm package installer using the following command:
+npm install
+
+Second, run npm install axios to download the axios package:
+npm install axios
+
+Lastly, create a .env.local file and store the following information:
+NEXT_PUBLIC_API_URL=https://api.openai.com/v1/chat/completions
+NEXT_PUBLIC_API_KEY=
+NEXT_PUBLIC_MODEL=gpt-3.5-turbo
+
+To get your secret OpenAI key, go to the website https://platform.openai.com/api-keys and create a 
+secret key, then paste this value into the corresponding blank in your created .env.local file
+
+Now, you can run the following command to run the project
+npm run dev
+
+
+-----------------------------------------------------
 
 ```bash
 npm run dev
