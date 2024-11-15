@@ -18,10 +18,10 @@ def connect_to_database(db_name):
     return col
 
 
-def handle_create(username, password, col):
-    # Check if username already exists.
-    if col.find_one({"username": username}):
-        print("username already exists.")
+def handle_create(email, password, col):
+    # Check if email already exists.
+    if col.find_one({"email": email}):
+        print("email already exists.")
         return
 
     # Hash the password.
@@ -35,20 +35,20 @@ def handle_create(username, password, col):
 
     # Create the initial user info.
     user = {
-        "username": username,
+        "email": email,
         "password": password_db_string
     }
 
     # Insert the new user to MongoDB.
     col.insert_one(user)
-    print(f"Successfully create an account with username: {username}")
+    print(f"Successfully create an account with email: {email}")
 
 
-def handle_login(username, password, col):
-    # Check if username is valid.
-    user = col.find_one({"username": username})
+def handle_login(email, password, col):
+    # Check if email is valid.
+    user = col.find_one({"email": email})
     if not user:
-        print("Invalid username.")
+        print("Invalid email.")
         return
     
     # Hash the password.
@@ -64,44 +64,44 @@ def handle_login(username, password, col):
         print("Invalid password.")
         return
 
-    print(f"Successfully login with username: {username}")
+    print(f"Successfully login with email: {email}")
     return
 
 
-def handle_delete(username, password, col):
+def handle_delete(email, password, col):
     # First login the account.
-    handle_login(username, password, col)
+    handle_login(email, password, col)
 
     # Remove the user from mongoDB.
-    result = col.delete_one({"username": username})
+    result = col.delete_one({"email": email})
 
     # Check if a document was deleted, for debug.
     if result.deleted_count > 0:
-        print(f"User with username {username} has been deleted.")
+        print(f"User with email {email} has been deleted.")
     else:
-        print(f"No user found with username {username}.")
+        print(f"No user found with email {email}.")
 
 
 def main():
     parser = argparse.ArgumentParser(description="User information demo.")
     parser.add_argument("-o", "--operation", type=str, required=True, help="Operation (create, login, delete).")
-    parser.add_argument("-u", "--username", type=str, required=True, help="Username.")
+    parser.add_argument("-e", "--email", type=str, required=True, help="Email.")
     parser.add_argument("-p", "--password", type=str, required=True, help="Password.")
     args = parser.parse_args()
     
     operation = args.operation
-    username = args.username
+    email = args.email
     password = args.password
-    print(f"Operation: {operation} Username: {username} Password: {password}")
+    print(f"Operation: {operation} Email: {email} Password: {password}")
     
     col = connect_to_database("users")
 
     if operation == 'create':
-        handle_create(username, password, col)
+        handle_create(email, password, col)
     elif operation == 'login':
-        handle_login(username, password, col)
+        handle_login(email, password, col)
     elif operation == 'delete':
-        handle_delete(username, password, col)
+        handle_delete(email, password, col)
     else:
         print("Invalid operation. Operations: create, login, delete")
 
