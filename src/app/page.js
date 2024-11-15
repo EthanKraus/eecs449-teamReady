@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import axios from 'axios'
 import Image from 'next/image'
+import Login from './login'
 
 // 配置参数
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.openai.com/v1/chat/completions'
@@ -10,7 +11,7 @@ const API_KEY = process.env.NEXT_PUBLIC_API_KEY || 'your-api-key'
 const MODEL = process.env.NEXT_PUBLIC_MODEL || 'gpt-3.5-turbo'
 
 // 只需要机器人头像配置
-const BOT_AVATAR = '/bot-avatar.png'
+const BOT_AVATAR = '/bot-avatar-bg-2.png'
 
 // 添加系统提示
 const SYSTEM_PROMPT = {
@@ -42,6 +43,12 @@ export default function Home() {
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // placeholder
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -80,11 +87,18 @@ export default function Home() {
     }
   }
 
+  if (!isAuthenticated) {
+    return <Login onLogin={handleLogin} />;
+  }
+
   return (
     <div className="flex flex-col h-screen">
       {/* 顶部标题栏 */}
-      <header className="flex items-center justify-center p-4 border-b">
-        <h1 className="text-2xl font-bold">ShopSmart</h1>
+      <header className="flex items-left justify-left p-4 border-b">
+        <div className="w-12 h-12 flex items-center justify-center rounded-full overflow-hidden mr-2 flex-shrink-0 ml-1">
+          <Image src={BOT_AVATAR} alt="Bot" width={48} height={48} />
+        </div>
+        <h1 className="text-2xl flex items-center justify-center font-normal ml-2">ShopSmart</h1>
       </header>
 
       {/* 主要聊天区域 */}
@@ -94,13 +108,12 @@ export default function Home() {
             {messages.map((message, index) => (
               <div key={index} className={`mb-6 flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {message.role !== 'user' && (
-                  <div className="w-8 h-8 rounded-full overflow-hidden mr-2 flex-shrink-0">
-                    <Image src={BOT_AVATAR} alt="Bot" width={32} height={32} />
+                  <div className="w-12 h-12 flex items-center justify-center rounded-full overflow-hidden mr-2 flex-shrink-0">
+                    <Image src={BOT_AVATAR} alt="Bot" width={48} height={48} />
                   </div>
                 )}
-                <span className={`inline-block p-3 rounded-lg ${
-                  message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100'
-                }`}>
+                <span className={`inline-block p-3 rounded-lg ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100'
+                  }`}>
                   {message.content}
                 </span>
               </div>

@@ -1,0 +1,87 @@
+.login-container {
+    display: flex;
+    align-items: center;
+    justify-content: right;
+    padding-right: 5vh;
+    height: 100vh;
+    background-image: url('/fashionable_girl_3.png');
+    /* background-image: url('/login-bg.jpg'); */
+    /* background-image: url('https://t4.ftcdn.net/jpg/04/58/83/27/360_F_458832788_fubmpk1THG2tIfI9dMIIWGZhNXA0vTO4.jpg'); */
+    /* background-image: url('https://img.freepik.com/premium-photo/busy-city-street-with-cars-pedestrians-buildings_14117-807828.jpg'); */
+    background-size: cover;
+    background-position: center;
+}
+
+.login-box {
+    width: 100%;
+    max-width: 500px;
+    min-height: 90vh;
+    padding: 4rem;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.title {
+    font-size: 1.7rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.label {
+    color: #4a4a4a;
+    font-weight: normal;
+    margin-bottom: 0.5rem;
+
+}
+
+.input {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    outline: none;
+    transition: border-color 0.2s ease-in-out;
+}
+
+.input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 1rem;
+    background-color: #4b96e7;
+    color: white;
+    font-weight: bold;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.submit-btn:hover {
+    background-color: #0056b3;
+}
+
+.text-center {
+    text-align: center;
+    color: #007bff;
+    font-weight: normal;
+    margin-top: 1rem;
+}
