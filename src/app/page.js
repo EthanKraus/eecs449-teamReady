@@ -112,7 +112,7 @@ export default function Home() {
                     <Image src={BOT_AVATAR} alt="Bot" width={48} height={48} />
                   </div>
                 )}
-                <span className={`inline-block p-3 rounded-lg ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100'
+                <span className={`inline-block p-3 rounded-lg ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-300  dark:bg-gray-800 dark:text-gray-200'
                   }`}>
                   {message.content}
                 </span>
