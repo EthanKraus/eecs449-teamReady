@@ -2,7 +2,6 @@ import { useState } from 'react';
 import './login.css';
 
 export default function Login({ onLogin }) {
-    const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
@@ -10,10 +9,10 @@ export default function Login({ onLogin }) {
         e.preventDefault();
         // add the login logic or call to backend for authentication here.
         // placeholder: assume successful login if all fields filled
-        if (username && email && password) {
+        if (email && password) {
             onLogin();
         } else {
-            alert('Please enter a username, email, and password.');
+            alert('Please enter a email and password.');
         }
     };
 
@@ -22,16 +21,6 @@ export default function Login({ onLogin }) {
             <div className="login-box">
                 <h2 className="title">Create an account</h2>
                 <form onSubmit={handleSubmit} className="form">
-                    <div className="input-group">
-                        <label className="label">User name</label>
-                        <input
-                            type="text"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            className="input"
-                            placeholder="Enter your user name"
-                        />
-                    </div>
                     <div className="input-group">
                         <label className="label">Email address</label>
                         <input
