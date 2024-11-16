@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import Image from 'next/image'
 import Login from './login'
@@ -45,6 +45,8 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  const chatContainerRef = useRef(null);
+
   // placeholder
   const handleLogin = () => {
     setIsAuthenticated(true);
@@ -87,6 +89,12 @@ export default function Home() {
     }
   }
 
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [messages]); // Trigger this effect when messages change
+
   if (!isAuthenticated) {
     return <Login onLogin={handleLogin} />;
   }
@@ -104,7 +112,10 @@ export default function Home() {
       {/* 主要聊天区域 */}
       <div className="flex-1 overflow-hidden">
         <div className="h-full max-w-5xl mx-auto p-4">
-          <div className="h-full overflow-y-auto">
+          <div
+            className="h-full overflow-y-auto"
+            ref={chatContainerRef}
+          >
             {messages.map((message, index) => (
               <div key={index} className={`mb-6 flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {message.role !== 'user' && (
