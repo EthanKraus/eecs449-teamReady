@@ -1,10 +1,7 @@
 'use client'
 
-<<<<<<< HEAD:src/app/page.js
 import { useState, useEffect } from 'react'
-=======
-import { useState, useEffect, useRef } from 'react'
->>>>>>> 4b6fb984af7abeee3b5805a45739397a4be9051e:pages/page.js
+import { useState, useEffect } from 'react'
 import axios from 'axios'
 import Image from 'next/image'
 import Login from './login'
@@ -48,7 +45,6 @@ export default function Page() {
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState([])
   const [isLoading, setIsLoading] = useState(false)
-<<<<<<< HEAD:src/app/page.js
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
@@ -69,11 +65,6 @@ export default function Page() {
 
     checkAuth();
   }, []);
-=======
-  const [isAuthenticated, setIsAuthenticated] = useState(true) // Set to true to bypass login
-
-  const chatContainerRef = useRef(null);
->>>>>>> 4b6fb984af7abeee3b5805a45739397a4be9051e:pages/page.js
 
   const handleLogin = () => {
     setIsAuthenticated(true);

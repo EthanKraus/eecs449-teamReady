@@ -6,7 +6,6 @@ export default function Login({ onLogin }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [isLogin, setIsLogin] = useState(true);
-<<<<<<< HEAD:src/app/login.js
     const [message, setMessage] = useState('');
     const [error, setError] = useState(false);
 
@@ -19,12 +18,6 @@ export default function Login({ onLogin }) {
             return;
         }
 
-=======
-    const router = useRouter();
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
->>>>>>> 4b6fb984af7abeee3b5805a45739397a4be9051e:pages/login.js
         const url = isLogin ? 'http://127.0.0.1:5000/login' : 'http://127.0.0.1:5000/create';
         const operation = isLogin ? 'login' : 'create account';
 
@@ -39,7 +32,6 @@ export default function Login({ onLogin }) {
             );
 
             if (response.status === 200 || response.status === 201) {
-<<<<<<< HEAD:src/app/login.js
                 setMessage(response.data.message);
                 setError(false);
                 if (isLogin) onLogin();
@@ -49,7 +41,6 @@ export default function Login({ onLogin }) {
             const errorMessage = error.response?.data?.error || `An error occurred while trying to ${operation}.`;
             setMessage(errorMessage);
             setError(true);
-=======
                 onLogin();
                 if (isLogin) {
                     router.push('/page'); // Navigate to the Page component after successful login
@@ -63,14 +54,12 @@ export default function Login({ onLogin }) {
         } catch (error) {
             console.error(`Error during ${operation}:`, error);
             alert(`Error during ${operation}.`);
->>>>>>> 4b6fb984af7abeee3b5805a45739397a4be9051e:pages/login.js
         }
     };
 
     return (
         <div className="login-container">
             <div className="login-box">
-<<<<<<< HEAD:src/app/login.js
                 
                     {isLogin ? 
                         <h2 className="title">Log In</h2>
@@ -82,13 +71,11 @@ export default function Login({ onLogin }) {
                         {message}
                     </div>
                 )}
-=======
                 {isLogin ? 
                     <h2 className="title">Log In</h2>
                     :
                     <h2 className="title">Create an account</h2>
                 }
->>>>>>> 4b6fb984af7abeee3b5805a45739397a4be9051e:pages/login.js
                 <form onSubmit={handleSubmit} className="form">
                     <div className="input-group">
                         <label className="label">Username</label>
