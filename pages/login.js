@@ -22,6 +22,12 @@ export default function Login({ onLogin }) {
 
             if (response.status === 200 || response.status === 201) {
                 onLogin();
+                if (isLogin) {
+                    router.push('/page'); // Navigate to the Page component after successful login
+                } else {
+                    alert('Account created successfully! Please log in.');
+                    setIsLogin(true);
+                }
             } else {
                 alert(`Failed to ${operation}.`);
             }
@@ -71,7 +77,7 @@ export default function Login({ onLogin }) {
                             <button
                                 type="button"
                                 className="link-btn"
-                                onClick={() => router.push('/create-account')}
+                                onClick={() => setIsLogin(false)}
                             >
                                 New to ShopSmart? Create an account
                             </button>

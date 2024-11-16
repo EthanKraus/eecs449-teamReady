@@ -6,9 +6,9 @@ import Image from 'next/image'
 import Login from './login'
 
 // API Configuration
-const API_URL = process.env.NEXT_PUBLIC_API_URL
-const API_KEY = process.env.NEXT_PUBLIC_API_KEY
-const MODEL = process.env.NEXT_PUBLIC_MODEL
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.openai.com/v1/chat/completions'
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY || 'your-api-key'
+const MODEL = process.env.NEXT_PUBLIC_MODEL || 'gpt-3.5-turbo'
 
 // Bot Avatar Configuration
 const BOT_AVATAR = '/bot-avatar-bg.png'
@@ -43,11 +43,10 @@ export default function Page() {
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState([])
   const [isLoading, setIsLoading] = useState(false)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(true) // Set to true to bypass login
 
   const chatContainerRef = useRef(null);
 
-  // placeholder
   const handleLogin = () => {
     setIsAuthenticated(true);
   };
@@ -66,7 +65,7 @@ export default function Page() {
         {
           model: MODEL,
           messages: [
-            SYSTEM_PROMPT,  // 添加系统提示
+            SYSTEM_PROMPT,  // Add system prompt
             ...messages,
             userMessage
           ],
@@ -82,7 +81,7 @@ export default function Page() {
       const aiMessage = response.data.choices[0].message
       setMessages((prev) => [...prev, aiMessage])
     } catch (error) {
-      console.error('Error:', error)
+      console.error('Error:', error.response ? error.response.data : error.message)
     } finally {
       setIsLoading(false)
       setInput('')

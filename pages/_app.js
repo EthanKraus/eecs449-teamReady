@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import '../styles/login.css';
-import '../styles/create-account.css';
+import '../styles/globals.css'; // Import global styles
+import '../styles/login.css'; // Import login styles
+import '../styles/create-account.css'; // Import create account styles
+import '../styles/page.css'; // Import page styles
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();

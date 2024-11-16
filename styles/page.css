@@ -1,0 +1,173 @@
+/* Styles for the Page component */
+.flex {
+    display: flex;
+  }
+  
+  .flex-col {
+    flex-direction: column;
+  }
+  
+  .h-screen {
+    height: 100vh;
+  }
+  
+  .p-4 {
+    padding: 1rem;
+  }
+  
+  .border-b {
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .dark\:border-zinc-800 {
+    border-color: #374151;
+  }
+  
+  .flex-1 {
+    flex: 1;
+  }
+  
+  .overflow-hidden {
+    overflow: hidden;
+  }
+  
+  .max-w-5xl {
+    max-width: 80rem;
+  }
+  
+  .mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .mb-6 {
+    margin-bottom: 1.5rem;
+  }
+  
+  .justify-end {
+    justify-content: flex-end;
+  }
+  
+  .justify-start {
+    justify-content: flex-start;
+  }
+  
+  .w-10 {
+    width: 2.5rem;
+  }
+  
+  .h-10 {
+    height: 2.5rem;
+  }
+  
+  .rounded-full {
+    border-radius: 9999px;
+  }
+  
+  .overflow-hidden {
+    overflow: hidden;
+  }
+  
+  .mr-2 {
+    margin-right: 0.5rem;
+  }
+  
+  .flex-shrink-0 {
+    flex-shrink: 0;
+  }
+  
+  .p-4 {
+    padding: 1rem;
+  }
+  
+  .rounded-lg {
+    border-radius: 0.5rem;
+  }
+  
+  .bg-blue-500 {
+    background-color: #3b82f6;
+  }
+  
+  .text-white {
+    color: #ffffff;
+  }
+  
+  .bg-gray-200 {
+    background-color: #e5e7eb;
+  }
+  
+  .text-black {
+    color: #000000;
+  }
+  
+  .p-3 {
+    padding: 0.75rem;
+  }
+  
+  .border {
+    border: 1px solid #d1d5db;
+  }
+  
+  .rounded-lg {
+    border-radius: 0.5rem;
+  }
+  
+  .focus\:outline-none {
+    outline: none;
+  }
+  
+  .focus\:ring-2 {
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+  }
+  
+  .focus\:ring-blue-500 {
+    box-shadow: 0 0 0 2px #3b82f6;
+  }
+  
+  .bg-zinc-100 {
+    background-color: #f3f4f6;
+  }
+  
+  .dark\:bg-zinc-900 {
+    background-color: #111827;
+  }
+  
+  .dark\:text-gray-200 {
+    color: #e5e7eb;
+  }
+  
+  .px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .py-3 {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+  
+  .bg-blue-500 {
+    background-color: #3b82f6;
+  }
+  
+  .text-white {
+    color: #ffffff;
+  }
+  
+  .rounded-lg {
+    border-radius: 0.5rem;
+  }
+  
+  .hover\:bg-blue-600:hover {
+    background-color: #2563eb;
+  }
+  
+  .disabled\:bg-blue-300:disabled {
+    background-color: #93c5fd;
+  }
+  
+  .transition-colors {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-duration: 150ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
