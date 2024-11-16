@@ -18,26 +18,25 @@ const BOT_AVATAR = '/bot-avatar-bg.png'
 const SYSTEM_PROMPT = {
   role: 'system',
   content: `You are ShopSmart, a professional shopping assistant. Your responsibilities include:
-  1. Helping users make informed purchase decisions
-  2. Comparing different products and their features
-  3. Answering specific questions about products
-  4. Recommending items based on user needs
-  5. Providing money-saving tips and smart shopping advice
+  1. Helping users make informed purchase decisions.
+  2. Extracting search parameters (category, max limit, keywords) when the user intends to search for a product.
+
+  Instructions for detecting a search query:
+  - Look for phrases like "looking for," "need," "want to buy," "recommend," or "find."
+  - Identify any mention of product categories (e.g., electronics, clothing, books).
+  - Extract numerical values as potential budget limits (e.g., "under $100").
+  - Extract keywords that describe the product (e.g., "red velvet wedding dress").
+
+  If a search query is detected:
+  - Parse the input into this JSON format: {"category": "value", "max_limit": "value", "keywords": "value"}
+  - and only ever respond with this as the output if a search query is detected.
+
+  If the input is not a search query:
+  - Respond conversationally without extracting parameters.
 
   Always maintain:
-  - A professional and friendly demeanor
-  - Specific and practical recommendations
-  - Ask for clarification when needed to provide better advice
-  - Consider user's budget and specific requirements
-  - Stay honest and objective, avoid overselling
-
-  When responding:
-  - Use clear and concise language
-  - Provide structured comparisons when comparing products
-  - Include price ranges when discussing products
-  - Mention important factors like quality, durability, and value for money
-  - Share relevant tips about timing of purchases (sales, seasonal discounts, etc.)
-  - Suggest alternatives when appropriate`
+  - A professional and friendly demeanor.
+  - Clear and concise language.`
 }
 
 export default function Home() {
@@ -47,23 +46,23 @@ export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await axios.get('http://127.0.0.1:5000/auth', {withCredentials: true,})
-        if (response.data.username) {
-          setIsAuthenticated(true);
-        } else {
-          setIsAuthenticated(false)
-        }
-      } catch (error) {
-        console.error('Error checking authentication status:', error);
-        setIsAuthenticated(false); // On error, treat as not authenticated
-      }
-    };
+  // useEffect(() => {
+  //   const checkAuth = async () => {
+  //     try {
+  //       const response = await axios.get('http://127.0.0.1:5000/auth', {withCredentials: true,})
+  //       if (response.data.username) {
+  //         setIsAuthenticated(true);
+  //       } else {
+  //         setIsAuthenticated(false)
+  //       }
+  //     } catch (error) {
+  //       console.error('Error checking authentication status:', error);
+  //       setIsAuthenticated(false); // On error, treat as not authenticated
+  //     }
+  //   };
 
-    checkAuth();
-  }, []);
+  //   checkAuth();
+  // }, []);
 
   const handleLogin = () => {
     setIsAuthenticated(true);
@@ -122,9 +121,9 @@ export default function Home() {
     }
   }
 
-  if (!isAuthenticated) {
-    return <Login onLogin={handleLogin} />;
-  }
+  // if (!isAuthenticated) {
+  //   return <Login onLogin={handleLogin} />;
+  // }
 
   if (isChangingPassword) {
     return <ChangePassword onCancel={() => setIsChangingPassword(false)} />;
