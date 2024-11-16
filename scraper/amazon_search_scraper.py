@@ -1,10 +1,11 @@
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
-from pymongo import UpdateOne
+# from pymongo.mongo_client import MongoClient
+# from pymongo.server_api import ServerApi
+# from pymongo import UpdateOne
 import argparse
+import json
 
 
 # Options:
@@ -133,6 +134,9 @@ def main():
     data = search_scraping(search_url, category, keyword, max_links_num)
     df = pd.DataFrame(data)
     df.to_csv("amazon_search_scraper_results.csv")
+
+    json_data = json.dumps(data, indent=4)
+    print(json_data)
 
 
 if __name__ == '__main__':
