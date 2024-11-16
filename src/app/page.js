@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
 import Image from 'next/image'
 import Login from './login'
+import ChangePassword from './change_password'
 
 // 配置参数
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.openai.com/v1/chat/completions'
@@ -43,12 +44,45 @@ export default function Home() {
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState([])
   const [isLoading, setIsLoading] = useState(false)
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-  // placeholder
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await axios.get('http://127.0.0.1:5000/auth', {withCredentials: true,})
+        if (response.data.username) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false)
+        }
+      } catch (error) {
+        console.error('Error checking authentication status:', error);
+        setIsAuthenticated(false); // On error, treat as not authenticated
+      }
+    };
+
+    checkAuth();
+  }, []);
+
   const handleLogin = () => {
     setIsAuthenticated(true);
   };
+
+  const handleLogout = async () => {
+    try {
+      const response = await axios.post('http://127.0.0.1:5000/logout', {withCredentials: true,})
+      if (response.status === 200) {
+        setIsAuthenticated(false)
+      }
+    } catch (error) {
+      console.error('Error logging out:', error)
+    }
+  }
+
+  const handleChangePassword = () => {
+    setIsChangingPassword(true)  // Set flag to show ChangePassword component
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -73,6 +107,7 @@ export default function Home() {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${API_KEY}`,
+            credentials: 'include'
           },
         }
       )
@@ -91,6 +126,10 @@ export default function Home() {
     return <Login onLogin={handleLogin} />;
   }
 
+  if (isChangingPassword) {
+    return <ChangePassword onCancel={() => setIsChangingPassword(false)} />;
+  }
+
   return (
     <div className="flex flex-col h-screen">
       {/* 顶部标题栏 */}
@@ -99,6 +138,24 @@ export default function Home() {
           <Image src={BOT_AVATAR} alt="Bot" width={48} height={48} />
         </div>
         <h1 className="text-2xl flex items-center justify-center font-normal ml-2 dark:text-white">ShopSmart</h1>
+      
+        <div className="absolute top-4 right-4 flex gap-2">
+          {/* Change Password Button */}
+          <button
+            onClick={handleChangePassword}
+            className="bg-yellow-500 text-white p-2 rounded-full hover:bg-yellow-600 transition-colors"
+          >
+            Change Password
+          </button>
+
+          {/* Logout button */}
+          <button
+            onClick={handleLogout}
+            className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors"
+          >
+            Logout
+          </button>
+        </div>
       </header>
 
       {/* 主要聊天区域 */}

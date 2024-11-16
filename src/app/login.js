@@ -3,19 +3,20 @@ import './login.css';
 import axios from 'axios';
 
 export default function Login({ onLogin }) {
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [isLogin, setIsLogin] = useState(true);
+    const [message, setMessage] = useState('');
+    const [error, setError] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // add the login logic or call to backend for authentication here.
-        // placeholder: assume successful login if all fields filled
-        // if (email && password) {
-        //     onLogin();
-        // } else {
-        //     alert('Please enter a email and password.');
-        // }
+
+        if (!username || !password) {
+            setMessage('All fields are required.');
+            setError(true);
+            return;
+        }
 
         const url = isLogin ? 'http://127.0.0.1:5000/login' : 'http://127.0.0.1:5000/create';
         const operation = isLogin ? 'login' : 'create account';
@@ -23,18 +24,23 @@ export default function Login({ onLogin }) {
         try {
             const response = await axios.post(
                 url,
-                { email, password }, // JSON payload
-                { headers: { 'Content-Type': 'application/json' } } // Specify JSON format
+                { username, password }, // JSON payload
+                {
+                    headers: { 'Content-Type': 'application/json' },
+                    withCredentials: true,
+                } // Specify JSON format
             );
 
             if (response.status === 200 || response.status === 201) {
-                alert(response.data.message);
+                setMessage(response.data.message);
+                setError(false);
                 if (isLogin) onLogin();
                 else setIsLogin(true);
             }
         } catch (error) {
-            console.error(error);
-            alert(error.response?.data?.error || `Failed to ${operation}.`);
+            const errorMessage = error.response?.data?.error || `An error occurred while trying to ${operation}.`;
+            setMessage(errorMessage);
+            setError(true);
         }
     };
 
@@ -47,15 +53,20 @@ export default function Login({ onLogin }) {
                         :
                         <h2 className="title">Create an account</h2>
                     }
+                {message && (
+                    <div className={`message ${error ? 'error' : 'success'}`}>
+                        {message}
+                    </div>
+                )}
                 <form onSubmit={handleSubmit} className="form">
                     <div className="input-group">
-                        <label className="label">Email address</label>
+                        <label className="label">Username</label>
                         <input
                             type="text"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
                             className="input"
-                            placeholder="Enter your email address"
+                            placeholder="Enter your username"
                         />
                     </div>
                     <div className="input-group">

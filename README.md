@@ -10,6 +10,9 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 2. Run npm install axios to download the axios package:     
 `npm install axios`
 
+21. Download concurrently for Flask API:
+`npm install concurrently --save-dev` 
+
 3. Download the proper python packages using pip by running the following command:  
 `pip install -r requirements.txt`
 
