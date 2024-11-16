@@ -5,15 +5,15 @@ import axios from 'axios'
 import Image from 'next/image'
 import Login from './login'
 
-// 配置参数
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.openai.com/v1/chat/completions'
-const API_KEY = process.env.NEXT_PUBLIC_API_KEY || 'your-api-key'
-const MODEL = process.env.NEXT_PUBLIC_MODEL || 'gpt-3.5-turbo'
+// API Configuration
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY
+const MODEL = process.env.NEXT_PUBLIC_MODEL
 
-// 只需要机器人头像配置
+// Bot Avatar Configuration
 const BOT_AVATAR = '/bot-avatar-bg.png'
 
-// 添加系统提示
+// System Prompt Configuration
 const SYSTEM_PROMPT = {
   role: 'system',
   content: `You are ShopSmart, a professional shopping assistant. Your responsibilities include:
@@ -39,11 +39,11 @@ const SYSTEM_PROMPT = {
   - Suggest alternatives when appropriate`
 }
 
-export default function Home() {
+export default function Page() {
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState([])
   const [isLoading, setIsLoading] = useState(false)
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   const chatContainerRef = useRef(null);
 
