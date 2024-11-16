@@ -1,20 +1,24 @@
 'use client'
 
+<<<<<<< HEAD:src/app/page.js
 import { useState, useEffect } from 'react'
+=======
+import { useState, useEffect, useRef } from 'react'
+>>>>>>> 4b6fb984af7abeee3b5805a45739397a4be9051e:pages/page.js
 import axios from 'axios'
 import Image from 'next/image'
 import Login from './login'
 import ChangePassword from './change_password'
 
-// 配置参数
+// API Configuration
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.openai.com/v1/chat/completions'
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY || 'your-api-key'
 const MODEL = process.env.NEXT_PUBLIC_MODEL || 'gpt-3.5-turbo'
 
-// 只需要机器人头像配置
+// Bot Avatar Configuration
 const BOT_AVATAR = '/bot-avatar-bg.png'
 
-// 添加系统提示
+// System Prompt Configuration
 const SYSTEM_PROMPT = {
   role: 'system',
   content: `You are ShopSmart, a professional shopping assistant. Your responsibilities include:
@@ -40,10 +44,11 @@ const SYSTEM_PROMPT = {
   - Suggest alternatives when appropriate`
 }
 
-export default function Home() {
+export default function Page() {
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState([])
   const [isLoading, setIsLoading] = useState(false)
+<<<<<<< HEAD:src/app/page.js
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
@@ -64,6 +69,11 @@ export default function Home() {
 
     checkAuth();
   }, []);
+=======
+  const [isAuthenticated, setIsAuthenticated] = useState(true) // Set to true to bypass login
+
+  const chatContainerRef = useRef(null);
+>>>>>>> 4b6fb984af7abeee3b5805a45739397a4be9051e:pages/page.js
 
   const handleLogin = () => {
     setIsAuthenticated(true);
@@ -98,7 +108,7 @@ export default function Home() {
         {
           model: MODEL,
           messages: [
-            SYSTEM_PROMPT,  // 添加系统提示
+            SYSTEM_PROMPT,  // Add system prompt
             ...messages,
             userMessage
           ],
@@ -115,12 +125,18 @@ export default function Home() {
       const aiMessage = response.data.choices[0].message
       setMessages((prev) => [...prev, aiMessage])
     } catch (error) {
-      console.error('Error:', error)
+      console.error('Error:', error.response ? error.response.data : error.message)
     } finally {
       setIsLoading(false)
       setInput('')
     }
   }
+
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [messages]); // Trigger this effect when messages change
 
   if (!isAuthenticated) {
     return <Login onLogin={handleLogin} />;
@@ -161,7 +177,10 @@ export default function Home() {
       {/* 主要聊天区域 */}
       <div className="flex-1 overflow-hidden">
         <div className="h-full max-w-5xl mx-auto p-4">
-          <div className="h-full overflow-y-auto">
+          <div
+            className="h-full overflow-y-auto"
+            ref={chatContainerRef}
+          >
             {messages.map((message, index) => (
               <div key={index} className={`mb-6 flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {message.role !== 'user' && (
