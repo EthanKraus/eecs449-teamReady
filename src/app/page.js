@@ -18,25 +18,36 @@ const BOT_AVATAR = '/bot-avatar-bg.png'
 const SYSTEM_PROMPT = {
   role: 'system',
   content: `You are ShopSmart, a professional shopping assistant. Your responsibilities include:
-  1. Helping users make informed purchase decisions.
-  2. Extracting search parameters (category, max limit, keywords) when the user intends to search for a product.
+  
+  1. Detecting when the user is asking for general assistance or initiating a product search query.
+     - If the input is conversational or seeks advice, respond naturally without extracting parameters.
+     - If the input is a product search query, extract parameters and formulate a JSON object.
 
-  Instructions for detecting a search query:
-  - Look for phrases like "looking for," "need," "want to buy," "recommend," or "find."
-  - Identify any mention of product categories (e.g., electronics, clothing, books).
-  - Extract numerical values as potential budget limits (e.g., "under $100").
-  - Extract keywords that describe the product (e.g., "red velvet wedding dress").
+  2. Extracting search parameters when a product query is detected:
+     - Category (e.g., 'clothing', 'electronics').
+     - Max Limit (e.g., '300', '1000').
+     - Keywords (e.g., 'post-apocalyptic wasteland dress').
+     - Translating stylistic or vague descriptions into straightforward, searchable keywords.
 
-  If a search query is detected:
-  - Parse the input into this JSON format: {"category": "value", "max_limit": "value", "keywords": "value"}
-  - and only ever respond with this as the output if a search query is detected.
+  3. Formulating a JSON object for product search queries:
+     JSON format: {"category": "value", "max_limit": "value", "keywords": ["keyword1", "keyword2", "keyword3"]}.
 
-  If the input is not a search query:
-  - Respond conversationally without extracting parameters.
+  Examples:
+  - User: "I want to buy a laptop under $1000 for gaming."
+    JSON: {"category": "electronics", "max_limit": "1000", "keywords": ["gaming laptop"]}.
+  - User: "Looking for a stylish red velvet dress for a wedding, under $200."
+    JSON: {"category": "clothing", "max_limit": "200", "keywords": ["red velvet dress", "wedding attire"]}.
+  - User: "I’m thinking about 末日废土姐, what do you think? Any recommendations?"
+    JSON: {"category": "clothing", "max_limit": "300", "keywords": ["post-apocalyptic dress", "rugged fashion", "distressed fabric"]}.
+
+  When translating styles:
+  - Break down the vibe into descriptive, searchable terms.
+  - Ensure keywords reflect the intended aesthetic and are suitable for online searches.
 
   Always maintain:
-  - A professional and friendly demeanor.
-  - Clear and concise language.`
+  - Clear and concise language.
+  - Structured output for product search queries.
+  - A professional and friendly tone for conversational assistance.` 
 }
 
 export default function Home() {
@@ -132,6 +143,19 @@ export default function Home() {
             scraperParams
           )
 
+          // Loop through each item in the scraperResponse (assuming it returns an array of items)
+          let summaries = new Set();
+          for (let result of scraperResponse.data.results) {
+            const summaryParams = { ASIN: result.ASIN }; 
+            try {
+                const scrapeSummaryResponse = await axios.post('http://localhost:8000/scrape_summary', summaryParams);
+                summaries.add(scrapeSummaryResponse.data);
+              } catch (error) {
+                console.error('Error fetching summary for item:', item.ASIN, error);
+              }
+            }
+          console.log(Array.from(summaries));
+
           // Add both the parsed query and results to chat
           setMessages((prev) => [
             ...prev,
@@ -146,7 +170,22 @@ Searching Amazon...`
             },
             {
               role: 'assistant',
-              content: JSON.stringify(scraperResponse.data, null, 2)
+              content: (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {scraperResponse.data.results.map((result, index) => (
+                    <div key={index} style={{ border: '1px solid #ccc', borderRadius: '8px', padding: '1rem', display: 'flex', gap: '1rem' }}>
+                      <img src={result.image} alt={result.title} style={{ width: '100px', height: 'auto', borderRadius: '8px' }} />
+                      <div>
+                        <h3 style={{ margin: '0 0 0.5rem 0' }}>{result.title}</h3>
+                        <p style={{ margin: '0 0 0.5rem 0' }}>Price: {result.price ? `$${result.price}` : 'N/A'}</p>
+                        <p style={{ margin: '0 0 0.5rem 0' }}>Rating: {result.rating}</p>
+                        <p style={{ margin: '0 0 0.5rem 0' }}>Summary: {summaries[index].results || 'Summary unavailable'}</p>
+                        <a href={result.product_url} target="_blank" rel="noopener noreferrer" style={{ color: '#007bff', textDecoration: 'none' }}>View Product</a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                )
             }
           ])
         } else {
