@@ -73,6 +73,59 @@ def test_frontend_flow():
             print(f"❌ Test failed with error: {str(e)}")
         
         print("\n" + "="*50)
+    
+def test_scrape_summary_flow():
+    base_url = 'http://localhost:8000'
+    
+    # Test cases for summary generation after scraping reviews
+    test_cases = [
+        {
+            "description": "Scraping reviews for a dress product",
+            "scrape_summary_params": {
+                "ASIN": "B097RSBHHV"  # Example ASIN for a musical instrument product
+            }
+        },
+        {
+            "description": "Scraping reviews for a tech gadget product",
+            "scrape_summary_params": {
+                "ASIN": "B07FZ8S74R"  # Example ASIN for a tech gadget product
+            }
+        }
+    ]
+
+    print("Testing Backend → Scrape Reviews → OpenAI Summary Generation Flow\n")
+
+    for case in test_cases:
+        print(f"\nTest Case: {case['description']}")
+        print(f"Requesting reviews for ASIN: {case['scrape_summary_params']['ASIN']}")
+        
+        try:
+            # Call scrape_summary endpoint with ASIN parameter
+            response = requests.post(
+                f"{base_url}/scrape_summary",
+                json=case['scrape_summary_params'],
+                headers={'Content-Type': 'application/json'}
+            )
+            
+            print(f"\nBackend Response:")
+            print(f"Status Code: {response.status_code}")
+            
+            if response.status_code == 200:
+                results = response.json()
+                print(f"Success: {results.get('message')}")
+                
+                # Display summary
+                if results.get('results'):
+                    print("\nGenerated Summary:")
+                    print(results['results'])
+            else:
+                print(f"Error: {response.text}")
+                
+        except Exception as e:
+            print(f"❌ Test failed with error: {str(e)}")
+        
+        print("\n" + "="*50)
 
 if __name__ == "__main__":
     test_frontend_flow()
+    test_scrape_summary_flow()
