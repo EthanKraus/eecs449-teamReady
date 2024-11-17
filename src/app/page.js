@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import Image from 'next/image'
 import Login from './login'
@@ -46,6 +46,8 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+
+  const chatContainerRef = useRef(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -122,6 +124,12 @@ export default function Home() {
     }
   }
 
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   if (!isAuthenticated) {
     return <Login onLogin={handleLogin} />;
   }
@@ -160,10 +168,13 @@ export default function Home() {
 
       {/* 主要聊天区域 */}
       <div className="flex-1 overflow-hidden">
-        <div className="h-full max-w-5xl mx-auto p-4">
-          <div className="h-full overflow-y-auto">
+        <div className="h-full max-w-10xl mx-auto p-4">
+          <div
+            className="h-full overflow-y-auto"
+            ref={chatContainerRef}
+          >
             {messages.map((message, index) => (
-              <div key={index} className={`mb-6 flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div key={index} className={`mb-6 m-3 flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {message.role !== 'user' && (
                   <div className="w-12 h-12 flex items-center justify-center rounded-full overflow-hidden mr-2 flex-shrink-0">
                     <Image src={BOT_AVATAR} alt="Bot" width={48} height={48} />
