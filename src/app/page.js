@@ -5,6 +5,7 @@ import axios from 'axios'
 import Image from 'next/image'
 import Login from './login'
 import ChangePassword from './change_password'
+import ProductResults from './components/ProductResults'
 
 // 配置参数
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.openai.com/v1/chat/completions'
@@ -20,35 +21,43 @@ const SYSTEM_PROMPT = {
   content: `You are ShopSmart, a professional shopping assistant. Your responsibilities include:
   
   1. Detecting when the user is asking for general assistance or initiating a product search query.
-     - If the input is conversational or seeks advice, respond naturally without extracting parameters.
+     - If the input is conversational or seeks advice, respond naturally while helping the user funnel their preferences into a single, clear phrase that encapsulates their needs.
      - If the input is a product search query, extract parameters and formulate a JSON object.
+     - In search query generation mode, respond **only** with the JSON object, with no additional text or commentary.
 
-  2. Extracting search parameters when a product query is detected:
+  2. Assisting with funneling in conversational mode:
+     - Break down vague or general descriptions into more specific, actionable options.
+     - Offer multiple suggestions and ask clarifying questions to narrow down the user's preferences.
+     - Gradually guide the user to a single descriptive phrase that best represents their need, avoiding multiple phrases.
+
+  3. Extracting search parameters when a product query is detected:
      - Category (e.g., 'clothing', 'electronics').
      - Max Limit (e.g., '300', '1000').
-     - Keywords (e.g., 'post-apocalyptic wasteland dress').
-     - Translating stylistic or vague descriptions into straightforward, searchable keywords.
+     - Keywords (e.g., 'apocalyptic dress', 'red velvet gown').
+     - Translating stylistic or vague descriptions into one straightforward, searchable phrase.
 
-  3. Formulating a JSON object for product search queries:
-     JSON format: {"category": "value", "max_limit": "value", "keywords": ["keyword1", "keyword2", "keyword3"]}.
+  4. Formulating a JSON object for product search queries:
+     - JSON format: {"category": "value", "max_limit": "value", "keywords": ["single phrase"]}.
+     - Output only the JSON object when in search query generation mode.
 
   Examples:
   - User: "I want to buy a laptop under $1000 for gaming."
     JSON: {"category": "electronics", "max_limit": "1000", "keywords": ["gaming laptop"]}.
   - User: "Looking for a stylish red velvet dress for a wedding, under $200."
-    JSON: {"category": "clothing", "max_limit": "200", "keywords": ["red velvet dress", "wedding attire"]}.
+
+    JSON: {"category": "clothing", "max_limit": "200", "keywords": ["red velvet dress"]}.
   - User: "I’m thinking about 末日废土姐, what do you think? Any recommendations?"
-    JSON: {"category": "clothing", "max_limit": "300", "keywords": ["post-apocalyptic dress", "rugged fashion", "distressed fabric"]}.
+    JSON: {"category": "clothing", "max_limit": "300", "keywords": ["apocalyptic dress"]}.
 
   When translating styles:
-  - Break down the vibe into descriptive, searchable terms.
-  - Ensure keywords reflect the intended aesthetic and are suitable for online searches.
+  - Break down the vibe into a single descriptive phrase.
+  - Ensure the keyword reflects the intended aesthetic and is suitable for online searches.
 
   Always maintain:
   - Clear and concise language.
-  - Structured output for product search queries.
-  - A professional and friendly tone for conversational assistance.` 
-}
+  - For search queries, output only the JSON object with no additional words.
+  - A professional and friendly tone for conversational assistance.`
+};
 
 export default function Home() {
   const [input, setInput] = useState('')
@@ -56,6 +65,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [productResults, setProductResults] = useState([]);
 
   // useEffect(() => {
   //   const checkAuth = async () => {
@@ -103,26 +113,46 @@ export default function Home() {
     setMessages((prev) => [...prev, userMessage])
 
     try {
+      // Before sending to OpenAI API, ensure messages are serializable
+      const sanitizedMessages = messages.map(msg => ({
+        role: msg.role,
+        content: typeof msg.content === 'object' ? 
+          JSON.stringify({
+            text: msg.content.text,
+            results: msg.content.results?.map(r => ({
+              title: r.title,
+              price: r.price,
+              rating: r.rating,
+              url: r.url,
+              image: r.image
+            }))
+          }) : 
+          msg.content
+      }));
+
       // Get response from OpenAI
-      const response = await axios.post(
-        API_URL,
+      const openaiResponse = await axios.post(
+        process.env.NEXT_PUBLIC_OPENAI_API_URL,
         {
-          model: MODEL,
+          model: process.env.NEXT_PUBLIC_MODEL,
           messages: [
             SYSTEM_PROMPT,
-            ...messages,
-            userMessage
+            ...sanitizedMessages,
+            {
+              role: userMessage.role,
+              content: userMessage.content
+            }
           ],
         },
         {
           headers: {
+            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${API_KEY}`,
-          },
+          }
         }
-      )
+      );
 
-      const aiMessage = response.data.choices[0].message
+      const aiMessage = openaiResponse.data.choices[0].message
 
       // Try to parse the response as JSON
       try {
@@ -139,8 +169,13 @@ export default function Home() {
 
           // Call scraper API
           const scraperResponse = await axios.post(
-            'http://localhost:8000/scrape',  // Your scraper endpoint
-            scraperParams
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/scrape`,
+            scraperParams,
+            {
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            }
           )
 
           // Loop through each item in the scraperResponse (assuming it returns an array of items)
@@ -189,6 +224,7 @@ Searching Amazon...`
                 )
             }
           ])
+          setProductResults(scraperResponse.data.results);
         } else {
           // Not a search query, just add the response to chat
           setMessages((prev) => [...prev, aiMessage])
@@ -259,10 +295,14 @@ Searching Amazon...`
                     <Image src={BOT_AVATAR} alt="Bot" width={48} height={48} />
                   </div>
                 )}
-                <span className={`inline-block p-3 rounded-lg ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-300  dark:bg-zinc-800 dark:text-gray-200'
-                  }`}>
-                  {message.content}
-                </span>
+                <div className={`inline-block p-3 rounded-lg ${
+                  message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-300 dark:bg-zinc-800 dark:text-gray-200'
+                }`}>
+                  {typeof message.content === 'string' ? 
+                    message.content : 
+                    <ProductResults results={productResults} />
+                  }
+                </div>
               </div>
             ))}
           </div>
