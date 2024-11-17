@@ -5,6 +5,7 @@ import axios from 'axios'
 import Image from 'next/image'
 import Login from './login'
 import ChangePassword from './change_password'
+import ProductResults from './components/ProductResults'
 
 // 配置参数
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.openai.com/v1/chat/completions'
@@ -63,6 +64,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [productResults, setProductResults] = useState([]);
 
   // useEffect(() => {
   //   const checkAuth = async () => {
@@ -110,26 +112,46 @@ export default function Home() {
     setMessages((prev) => [...prev, userMessage])
 
     try {
+      // Before sending to OpenAI API, ensure messages are serializable
+      const sanitizedMessages = messages.map(msg => ({
+        role: msg.role,
+        content: typeof msg.content === 'object' ? 
+          JSON.stringify({
+            text: msg.content.text,
+            results: msg.content.results?.map(r => ({
+              title: r.title,
+              price: r.price,
+              rating: r.rating,
+              url: r.url,
+              image: r.image
+            }))
+          }) : 
+          msg.content
+      }));
+
       // Get response from OpenAI
-      const response = await axios.post(
-        API_URL,
+      const openaiResponse = await axios.post(
+        process.env.NEXT_PUBLIC_OPENAI_API_URL,
         {
-          model: MODEL,
+          model: process.env.NEXT_PUBLIC_MODEL,
           messages: [
             SYSTEM_PROMPT,
-            ...messages,
-            userMessage
+            ...sanitizedMessages,
+            {
+              role: userMessage.role,
+              content: userMessage.content
+            }
           ],
         },
         {
           headers: {
+            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${API_KEY}`,
-          },
+          }
         }
-      )
+      );
 
-      const aiMessage = response.data.choices[0].message
+      const aiMessage = openaiResponse.data.choices[0].message
 
       // Try to parse the response as JSON
       try {
@@ -146,8 +168,13 @@ export default function Home() {
 
           // Call scraper API
           const scraperResponse = await axios.post(
-            'http://localhost:8000/scrape',  // Your scraper endpoint
-            scraperParams
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/scrape`,
+            scraperParams,
+            {
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            }
           )
 
           // Add both the parsed query and results to chat
@@ -181,6 +208,7 @@ Searching Amazon...`
               )
             }
           ])
+          setProductResults(scraperResponse.data.results);
         } else {
           // Not a search query, just add the response to chat
           setMessages((prev) => [...prev, aiMessage])
@@ -251,10 +279,14 @@ Searching Amazon...`
                     <Image src={BOT_AVATAR} alt="Bot" width={48} height={48} />
                   </div>
                 )}
-                <span className={`inline-block p-3 rounded-lg ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-300  dark:bg-zinc-800 dark:text-gray-200'
-                  }`}>
-                  {message.content}
-                </span>
+                <div className={`inline-block p-3 rounded-lg ${
+                  message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-300 dark:bg-zinc-800 dark:text-gray-200'
+                }`}>
+                  {typeof message.content === 'string' ? 
+                    message.content : 
+                    <ProductResults results={productResults} />
+                  }
+                </div>
               </div>
             ))}
           </div>
