@@ -52,12 +52,12 @@ def scrape():
             "message": "Error processing request"
         }), 500
 
-load_dotenv('.env.backend')
-openai.api_key = os.getenv("Backend_API_KEY")
-OPENAI_MODEL = os.getenv("Backend_MODEL")
+# load_dotenv('.env.backend')
+# openai.api_key = os.getenv("Backend_API_KEY")
+# OPENAI_MODEL = os.getenv("Backend_MODEL")
 
-print("OpenAI API Key:", openai.api_key, file=sys.stderr)  # Should not print None
-print("OpenAI Model:", OPENAI_MODEL, file=sys.stderr)      # Should not print None
+# print("OpenAI API Key:", openai.api_key, file=sys.stderr)  # Should not print None
+# print("OpenAI Model:", OPENAI_MODEL, file=sys.stderr)      # Should not print None
 
 
 def get_summary_from_openai(reviews_text):

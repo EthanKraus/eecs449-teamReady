@@ -150,6 +150,7 @@ export default function Home() {
             try {
                 const scrapeSummaryResponse = await axios.post('http://localhost:8000/scrape_summary', summaryParams);
                 summaries.add(scrapeSummaryResponse.data);
+                // console.log(scrapeSummaryResponse.data);
               } catch (error) {
                 console.error('Error fetching summary for item:', item.ASIN, error);
               }
@@ -179,7 +180,7 @@ Searching Amazon...`
                         <h3 style={{ margin: '0 0 0.5rem 0' }}>{result.title}</h3>
                         <p style={{ margin: '0 0 0.5rem 0' }}>Price: {result.price ? `$${result.price}` : 'N/A'}</p>
                         <p style={{ margin: '0 0 0.5rem 0' }}>Rating: {result.rating}</p>
-                        <p style={{ margin: '0 0 0.5rem 0' }}>Summary: {summaries[index].results || 'Summary unavailable'}</p>
+                        <p style={{ margin: '0 0 0.5rem 0' }}>Summary: {Array.from(summaries)[index].results || 'Summary unavailable'}</p>
                         <a href={result.product_url} target="_blank" rel="noopener noreferrer" style={{ color: '#007bff', textDecoration: 'none' }}>View Product</a>
                       </div>
                     </div>
