@@ -26,10 +26,15 @@ NEXT_PUBLIC_MODEL=gpt-3.5-turbo
 5. To get your secret OpenAI key, go to the website https://platform.openai.com/api-keys and create a  
 secret key, then paste this value into the corresponding blank in your created .env.local file.
 
-6. Now, you can run the following command to run the project:     
+6. Create a virtual environment inside of the backend/ folder and download the necessary packages
+there using the backend/requirements.txt file. Then, open a NEW terminal and run the following command 
+to allow the backend web scraper to run:
+'python3 app.py'
+
+7. Now, you can run the following command to run the project in your original terminal:     
 `npm run dev`
 
-7. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+8. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 ## Learn More
 
