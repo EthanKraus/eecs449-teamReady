@@ -92,12 +92,13 @@ export default function Home() {
     setMessages((prev) => [...prev, userMessage])
 
     try {
+      // Get response from OpenAI
       const response = await axios.post(
         API_URL,
         {
           model: MODEL,
           messages: [
-            SYSTEM_PROMPT,  // 添加系统提示
+            SYSTEM_PROMPT,
             ...messages,
             userMessage
           ],
@@ -106,15 +107,65 @@ export default function Home() {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${API_KEY}`,
-            credentials: 'include'
           },
         }
       )
 
       const aiMessage = response.data.choices[0].message
-      setMessages((prev) => [...prev, aiMessage])
+
+      // Try to parse the response as JSON
+      try {
+        const parsedResponse = JSON.parse(aiMessage.content)
+        
+        // Check if it's a valid search query
+        if (parsedResponse.category && parsedResponse.keywords) {
+          // Format for scraper
+          const scraperParams = {
+            category: parsedResponse.category,
+            keyword: parsedResponse.keywords,
+            max_links_num: 10  // Or use max_limit if provided
+          }
+
+          // Call scraper API
+          const scraperResponse = await axios.post(
+            'http://localhost:8000/scrape',  // Your scraper endpoint
+            scraperParams
+          )
+
+          // Add both the parsed query and results to chat
+          setMessages((prev) => [
+            ...prev,
+            { 
+              role: 'assistant', 
+              content: `I detected a product search:
+Category: ${parsedResponse.category}
+Keywords: ${parsedResponse.keywords}
+${parsedResponse.max_limit ? `Max Price: $${parsedResponse.max_limit}` : ''}
+
+Searching Amazon...`
+            },
+            {
+              role: 'assistant',
+              content: JSON.stringify(scraperResponse.data, null, 2)
+            }
+          ])
+        } else {
+          // Not a search query, just add the response to chat
+          setMessages((prev) => [...prev, aiMessage])
+        }
+      } catch (parseError) {
+        // Not JSON, just a regular conversation response
+        setMessages((prev) => [...prev, aiMessage])
+      }
     } catch (error) {
       console.error('Error:', error)
+      setMessages((prev) => [
+        ...prev,
+        { 
+          role: 'assistant', 
+          content: 'Sorry, I encountered an error processing your request.' 
+        }
+      ])
     } finally {
       setIsLoading(false)
       setInput('')
