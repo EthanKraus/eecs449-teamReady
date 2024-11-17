@@ -44,6 +44,7 @@ const SYSTEM_PROMPT = {
   - User: "I want to buy a laptop under $1000 for gaming."
     JSON: {"category": "electronics", "max_limit": "1000", "keywords": ["gaming laptop"]}.
   - User: "Looking for a stylish red velvet dress for a wedding, under $200."
+
     JSON: {"category": "clothing", "max_limit": "200", "keywords": ["red velvet dress"]}.
   - User: "I’m thinking about 末日废土姐, what do you think? Any recommendations?"
     JSON: {"category": "clothing", "max_limit": "300", "keywords": ["apocalyptic dress"]}.
@@ -177,6 +178,20 @@ export default function Home() {
             }
           )
 
+          // Loop through each item in the scraperResponse (assuming it returns an array of items)
+          let summaries = new Set();
+          for (let result of scraperResponse.data.results) {
+            const summaryParams = { ASIN: result.ASIN }; 
+            try {
+                const scrapeSummaryResponse = await axios.post('http://localhost:8000/scrape_summary', summaryParams);
+                summaries.add(scrapeSummaryResponse.data);
+                // console.log(scrapeSummaryResponse.data);
+              } catch (error) {
+                console.error('Error fetching summary for item:', item.ASIN, error);
+              }
+            }
+          console.log(Array.from(summaries));
+
           // Add both the parsed query and results to chat
           setMessages((prev) => [
             ...prev,
@@ -192,20 +207,21 @@ Searching Amazon...`
             {
               role: 'assistant',
               content: (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {scraperResponse.data.results.map((result, index) => (
-                  <div key={index} style={{ border: '1px solid #ccc', borderRadius: '8px', padding: '1rem', display: 'flex', gap: '1rem' }}>
-                    <img src={result.image} alt={result.title} style={{ width: '100px', height: 'auto', borderRadius: '8px' }} />
-                    <div>
-                      <h3 style={{ margin: '0 0 0.5rem 0' }}>{result.title}</h3>
-                      <p style={{ margin: '0 0 0.5rem 0' }}>Price: {result.price ? `$${result.price}` : 'N/A'}</p>
-                      <p style={{ margin: '0 0 0.5rem 0' }}>Rating: {result.rating}</p>
-                      <a href={result.product_url} target="_blank" rel="noopener noreferrer" style={{ color: '#007bff', textDecoration: 'none' }}>View Product</a>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {scraperResponse.data.results.map((result, index) => (
+                    <div key={index} style={{ border: '1px solid #ccc', borderRadius: '8px', padding: '1rem', display: 'flex', gap: '1rem' }}>
+                      <img src={result.image} alt={result.title} style={{ width: '100px', height: 'auto', borderRadius: '8px' }} />
+                      <div>
+                        <h3 style={{ margin: '0 0 0.5rem 0' }}>{result.title}</h3>
+                        <p style={{ margin: '0 0 0.5rem 0' }}>Price: {result.price ? `$${result.price}` : 'N/A'}</p>
+                        <p style={{ margin: '0 0 0.5rem 0' }}>Rating: {result.rating}</p>
+                        <p style={{ margin: '0 0 0.5rem 0' }}>Summary: {Array.from(summaries)[index].results || 'Summary unavailable'}</p>
+                        <a href={result.product_url} target="_blank" rel="noopener noreferrer" style={{ color: '#007bff', textDecoration: 'none' }}>View Product</a>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-              )
+                  ))}
+                </div>
+                )
             }
           ])
           setProductResults(scraperResponse.data.results);
