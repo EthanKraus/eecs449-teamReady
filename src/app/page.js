@@ -157,7 +157,19 @@ Searching Amazon...`
             },
             {
               role: 'assistant',
-              content: JSON.stringify(scraperResponse.data, null, 2)
+              content: (
+                <div>
+                  {scraperResponse.data.results.map((result, index) => (
+                    <div key={index}>
+                      <p>{result.title}</p>
+                      <img src={result.image} alt={result.title} />
+                      <p>Price: {result.price ? `$${result.price}` : 'N/A'}</p>
+                      <p>Rating: {result.rating}</p>
+                      <a href={result.product_url} target="_blank" rel="noopener noreferrer">View Product</a>
+                    </div>
+                  ))}
+                </div>
+              )
             }
           ])
         } else {
