@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"next dev\" \"python users/users.py\"",
+    "dev": "concurrently \"next dev\" \"python users/users.py\" \"python backend/app.py\"",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

@@ -234,13 +234,13 @@ export default function Home() {
     }
   }
 
-  // if (!isAuthenticated) {
-  //   return <Login onLogin={handleLogin} />;
-  // }
-
-  if (isChangingPassword) {
-    return <ChangePassword onCancel={() => setIsChangingPassword(false)} />;
+  if (!isAuthenticated) {
+    return <Login onLogin={handleLogin} />;
   }
+
+//   if (isChangingPassword) {
+//     return <ChangePassword onCancel={() => setIsChangingPassword(false)} />;
+//   }
 
   return (
     <div className="flex flex-col h-screen">
@@ -253,12 +253,12 @@ export default function Home() {
       
         <div className="absolute top-4 right-4 flex gap-2">
           {/* Change Password Button */}
-          <button
+          {/* <button
             onClick={handleChangePassword}
             className="bg-yellow-500 text-white p-2 rounded-full hover:bg-yellow-600 transition-colors"
           >
             Change Password
-          </button>
+          </button> */}
 
           {/* Logout button */}
           <button
