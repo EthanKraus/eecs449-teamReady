@@ -18,45 +18,37 @@ const BOT_AVATAR = '/bot-avatar-bg.png'
 // 添加系统提示
 const SYSTEM_PROMPT = {
   role: 'system',
-  content: `You are ShopSmart, a professional shopping assistant. Your responsibilities include:
-  
-  1. Detecting when the user is asking for general assistance or initiating a product search query.
-     - If the input is conversational or seeks advice, respond naturally while helping the user funnel their preferences into a single, clear phrase that encapsulates their needs.
-     - If the input is a product search query, extract parameters and formulate a JSON object.
-     - In search query generation mode, respond **only** with the JSON object, with no additional text or commentary.
+  content: `You are ShopSmart, a professional shopping assistant. You MUST follow these rules:
 
-  2. Assisting with funneling in conversational mode:
-     - Break down vague or general descriptions into more specific, actionable options.
-     - Offer multiple suggestions and ask clarifying questions to narrow down the user's preferences.
-     - Gradually guide the user to a single descriptive phrase that best represents their need, avoiding multiple phrases.
+  1. When a user provides product details or confirms a search, IMMEDIATELY respond with ONLY this JSON:
+     {"type": "search", "category": "clothing", "keyword": "search terms", "max_limit": "price"}
+     No other text allowed.
 
-  3. Extracting search parameters when a product query is detected:
-     - Category (e.g., 'clothing', 'electronics').
-     - Max Limit (e.g., '300', '1000').
-     - Keywords (e.g., 'apocalyptic dress', 'red velvet gown').
-     - Translating stylistic or vague descriptions into one straightforward, searchable phrase.
+  2. For review requests:
+     {"type": "review_request", "index": number}
+     No other text allowed.
 
-  4. Formulating a JSON object for product search queries:
-     - JSON format: {"category": "value", "max_limit": "value", "keywords": ["single phrase"]}.
-     - Output only the JSON object when in search query generation mode.
+  3. Only engage in conversation when:
+     - Asking for clarification about budget
+     - Asking about specific preferences
+     - Asking about the occasion
+     Do not acknowledge with conversation when user is ready to search.
 
   Examples:
-  - User: "I want to buy a laptop under $1000 for gaming."
-    JSON: {"category": "electronics", "max_limit": "1000", "keywords": ["gaming laptop"]}.
-  - User: "Looking for a stylish red velvet dress for a wedding, under $200."
-    JSON: {"category": "clothing", "max_limit": "200", "keywords": ["red velvet dress"]}.
-  - User: "I’m thinking about 末日废土姐, what do you think? Any recommendations?"
-    JSON: {"category": "clothing", "max_limit": "300", "keywords": ["apocalyptic dress"]}.
+  User: "100-300 dollars"
+  Response: {"type": "search", "category": "clothing", "keyword": "red shiny dress", "max_limit": "300"}
 
-  When translating styles:
-  - Break down the vibe into a single descriptive phrase.
-  - Ensure the keyword reflects the intended aesthetic and is suitable for online searches.
-
-  Always maintain:
-  - Clear and concise language.
-  - For search queries, output only the JSON object with no additional words.
-  - A professional and friendly tone for conversational assistance.`
+  User: "Show me red dresses"
+  Response: {"type": "search", "category": "clothing", "keyword": "red dress", "max_limit": "100"}
+  
+  User: "What do people say about the first product?"
+  Response: {"type": "review_request", "index": 0}
+  
+  User: "Can you clarify the price range?"
+  Response: Could you please specify your budget for this item?`
 };
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
 
 export default function Home() {
   const [input, setInput] = useState('')
@@ -65,6 +57,7 @@ export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [productResults, setProductResults] = useState([]);
+  const [lastProductResults, setLastProductResults] = useState([]);
 
   // useEffect(() => {
   //   const checkAuth = async () => {
@@ -104,118 +97,127 @@ export default function Home() {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    if (!input.trim()) return
+    e.preventDefault();
+    if (!input.trim()) return;
 
-    setIsLoading(true)
-    const userMessage = { role: 'user', content: input }
-    setMessages((prev) => [...prev, userMessage])
+    setIsLoading(true);
+    setMessages(prev => [...prev, { role: 'user', content: input }]);
 
     try {
-      // Before sending to OpenAI API, ensure messages are serializable
-      const sanitizedMessages = messages.map(msg => ({
-        role: msg.role,
-        content: typeof msg.content === 'object' ? 
-          JSON.stringify({
-            text: msg.content.text,
-            results: msg.content.results?.map(r => ({
-              title: r.title,
-              price: r.price,
-              rating: r.rating,
-              url: r.url,
-              image: r.image
-            }))
-          }) : 
-          msg.content
-      }));
-
-      // Get response from OpenAI
-      const openaiResponse = await axios.post(
-        process.env.NEXT_PUBLIC_OPENAI_API_URL,
-        {
-          model: process.env.NEXT_PUBLIC_MODEL,
-          messages: [
-            SYSTEM_PROMPT,
-            ...sanitizedMessages,
-            {
-              role: userMessage.role,
-              content: userMessage.content
-            }
-          ],
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
-            'Content-Type': 'application/json',
-          }
+      const aiResponse = await axios.post(API_URL, {
+        model: MODEL,
+        messages: [SYSTEM_PROMPT, ...messages, { role: 'user', content: input }]
+      }, {
+        headers: {
+          'Authorization': `Bearer ${API_KEY}`
         }
-      );
+      });
 
-      const aiMessage = openaiResponse.data.choices[0].message
+      const aiMessage = aiResponse.data.choices[0].message;
 
       // Try to parse the response as JSON
       try {
-        const parsedResponse = JSON.parse(aiMessage.content)
+        const parsedResponse = JSON.parse(aiMessage.content);
         
-        // Check if it's a valid search query
-        if (parsedResponse.category && parsedResponse.keywords) {
-          // Format for scraper
+        if (parsedResponse.type === 'search') {
           const scraperParams = {
             category: parsedResponse.category,
-            keyword: parsedResponse.keywords,
-            max_links_num: 10  // Or use max_limit if provided
-          }
+            keyword: parsedResponse.keyword,
+            max_links_num: 10
+          };
 
-          // Call scraper API
+          console.log("Sending to backend:", scraperParams);
+
           const scraperResponse = await axios.post(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/scrape`,
+            `${BACKEND_URL}/scrape`,
             scraperParams,
             {
               headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
               }
             }
-          )
+          );
 
-          // Add both the parsed query and results to chat
-          setMessages((prev) => [
+          console.log("Backend response:", scraperResponse.data);
+
+          // Store the results for the ProductResults component to use
+          setProductResults(scraperResponse.data.results);
+          setLastProductResults(scraperResponse.data.results);
+
+          // Add a message indicating search results are ready
+          setMessages(prev => [
             ...prev,
-            { 
-              role: 'assistant', 
-              content: `I detected a product search:
-Category: ${parsedResponse.category}
-Keywords: ${parsedResponse.keywords}
-${parsedResponse.max_limit ? `Max Price: $${parsedResponse.max_limit}` : ''}
-
-Searching Amazon...`
-            },
             {
               role: 'assistant',
-              content: (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {scraperResponse.data.results.map((result, index) => (
-                  <div key={index} style={{ border: '1px solid #ccc', borderRadius: '8px', padding: '1rem', display: 'flex', gap: '1rem' }}>
-                    <img src={result.image} alt={result.title} style={{ width: '100px', height: 'auto', borderRadius: '8px' }} />
-                    <div>
-                      <h3 style={{ margin: '0 0 0.5rem 0' }}>{result.title}</h3>
-                      <p style={{ margin: '0 0 0.5rem 0' }}>Price: {result.price ? `$${result.price}` : 'N/A'}</p>
-                      <p style={{ margin: '0 0 0.5rem 0' }}>Rating: {result.rating}</p>
-                      <a href={result.product_url} target="_blank" rel="noopener noreferrer" style={{ color: '#007bff', textDecoration: 'none' }}>View Product</a>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              )
+              content: 'PRODUCT_RESULTS_PLACEHOLDER', // Special marker for rendering
+              results: scraperResponse.data.results // Store results with the message
             }
-          ])
-          setProductResults(scraperResponse.data.results);
+          ]);
+        } else if (parsedResponse.type === 'review_request') {
+          const productIndex = parsedResponse.index;
+          
+          console.log("Last product results:", lastProductResults); // Debug log
+          
+          if (!lastProductResults || !lastProductResults[productIndex]) {
+            setMessages(prev => [...prev, {
+              role: 'assistant',
+              content: 'Please search for products first before requesting reviews.'
+            }]);
+            return;
+          }
+
+          const product = lastProductResults[productIndex];
+          console.log("Requesting review for product:", product); // Debug log
+
+          try {
+            const reviewResponse = await axios.post(
+              `${BACKEND_URL}/scrape_summary`,
+              { ASIN: product.ASIN },
+              {
+                headers: {
+                  'Content-Type': 'application/json'
+                }
+              }
+            );
+
+            if (reviewResponse.data && reviewResponse.data.results) {
+              setMessages(prev => [...prev, {
+                role: 'assistant',
+                content: `Here's what people are saying about this product: ${reviewResponse.data.results}`
+              }]);
+            } else {
+              throw new Error('Invalid response format from server');
+            }
+          } catch (error) {
+            // More robust error logging
+            console.error('Error details:', {
+              message: error.message || 'No error message',
+              response: error.response ? {
+                data: error.response.data || null,
+                status: error.response.status || null
+              } : null,
+              fullError: error
+            });
+
+            // More descriptive error message to user
+            const errorMessage = error.response?.data?.message 
+              || error.message 
+              || 'An unknown error occurred';
+
+            setMessages(prev => [...prev, {
+              role: 'assistant',
+              content: `Sorry, I encountered an error fetching the reviews. Details: ${errorMessage}`
+            }]);
+          } finally {
+            setIsLoading(false);
+          }
         } else {
-          // Not a search query, just add the response to chat
-          setMessages((prev) => [...prev, aiMessage])
+          // Not a search query or review request, just add the response to chat
+          setMessages(prev => [...prev, aiMessage]);
         }
       } catch (parseError) {
         // Not JSON, just a regular conversation response
-        setMessages((prev) => [...prev, aiMessage])
+        setMessages(prev => [...prev, aiMessage]);
       }
     } catch (error) {
       console.error('Error:', error)
@@ -282,10 +284,18 @@ Searching Amazon...`
                 <div className={`inline-block p-3 rounded-lg ${
                   message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-300 dark:bg-zinc-800 dark:text-gray-200'
                 }`}>
-                  {typeof message.content === 'string' ? 
-                    message.content : 
-                    <ProductResults results={productResults} />
-                  }
+                  {message.content === 'PRODUCT_RESULTS_PLACEHOLDER' ? (
+                    <div key={`product-results-${index}`}>
+                      <ProductResults 
+                        results={message.results} 
+                        setLastProductResults={setLastProductResults}
+                      />
+                    </div>
+                  ) : (
+                    <div key={`message-${index}`}>
+                      {message.content}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
