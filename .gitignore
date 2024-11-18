@@ -10,7 +10,7 @@ venv3/
 .pytest_cache
 .env
 .env.backend
-.end.local
+.env.local
 .next
 
 # JavaScript
