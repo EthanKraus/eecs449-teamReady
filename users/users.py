@@ -1,7 +1,7 @@
 import os
 import sys
 from flask import Flask, request, jsonify, session
-from flask_session import Session
+# from flask_session import Session
 from flask_cors import CORS
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
@@ -13,16 +13,16 @@ import hashlib
 app = Flask(__name__)
 app.secret_key = 'aVeryLongAndComplexSecretKey12345!'
 
-app.config['SESSION_TYPE'] = 'filesystem'
-app.config['SESSION_PERMANENT'] = True
-app.config['SESSION_USE_SIGNER'] = True
-app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SECURE'] = False
-app.config['SESSION_COOKIE_SAMESITE'] = 'None'
-app.config['SESSION_FILE_DIR'] = './flask_sessions'
-app.config['SESSION_COOKIE_DOMAIN'] = 'localhost'
-app.config['SESSION_COOKIE_PATH'] = '/'
-Session(app)
+# app.config['SESSION_TYPE'] = 'filesystem'
+# app.config['SESSION_PERMANENT'] = True
+# app.config['SESSION_USE_SIGNER'] = True
+# app.config['SESSION_COOKIE_HTTPONLY'] = True
+# app.config['SESSION_COOKIE_SECURE'] = False
+# app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+# app.config['SESSION_FILE_DIR'] = './flask_sessions'
+# app.config['SESSION_COOKIE_DOMAIN'] = 'localhost'
+# app.config['SESSION_COOKIE_PATH'] = '/'
+# Session(app)
 CORS(app, supports_credentials=True)
 
 

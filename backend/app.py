@@ -7,7 +7,7 @@ import openai
 import os
 
 # Remove dotenv and directly set your OpenAI API key
-openai.api_key = 'sk-svcacct-yDZputh65lu27XG4BcXuT3BlbkFJdcHdCqqnp6GMtfs45Xpp'
+openai.api_key = 'YOUR_API_KEY'
 
 app = Flask(__name__)
 CORS(app)
