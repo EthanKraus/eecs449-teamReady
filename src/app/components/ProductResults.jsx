@@ -1,57 +1,55 @@
 'use client'
 
-import React, { useEffect, useState } from 'react';
-
-export default function ProductResults({ results, setLastProductResults }) {
-  // Move the state update to useEffect
-  useEffect(() => {
-    if (results && results.length > 0) {
-      // Filter out duplicates based on ASIN
-      const uniqueResults = results.filter((product, index, self) =>
-        index === self.findIndex((p) => p.ASIN === product.ASIN)
-      );
-      setLastProductResults(uniqueResults);
-    }
-  }, [results, setLastProductResults]);
-
-  // Add null check and loading state
-  if (!results) {
-    return <div>Loading...</div>;
-  }
-
-  // Filter out duplicates before rendering
-  const uniqueResults = results.filter((product, index, self) =>
-    index === self.findIndex((p) => p.ASIN === product.ASIN)
-  );
-
-  if (uniqueResults.length === 0) {
-    return <div>No results found</div>;
-  }
+export default function ProductResults({ results, summaries = [] }) {
+  if (!results?.length) return null;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {uniqueResults.map((product, index) => (
-        <div key={`${product.ASIN}-${index}`} className="border rounded-lg p-4 dark:border-zinc-800">
-          {product.image && (
-            <img 
-              src={product.image} 
-              alt={product.title || 'Product image'}
-              className="w-full h-48 object-cover rounded-lg mb-4"
-            />
-          )}
-          <h3 className="font-medium mb-2">{product.title}</h3>
-          <p className="text-lg font-bold">${product.price}</p>
-          <p className="text-sm">Rating: {product.rating}</p>
-          {product.product_url && (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      {results.map((result, index) => (
+        <div 
+          key={index} 
+          style={{ 
+            border: '1px solid #ccc', 
+            borderRadius: '8px', 
+            padding: '1rem', 
+            display: 'flex', 
+            gap: '1rem' 
+          }}
+        >
+          <img 
+            src={result.image} 
+            alt={result.title} 
+            style={{ 
+              width: '100px', 
+              height: 'auto', 
+              borderRadius: '8px' 
+            }} 
+          />
+          <div>
+            <h3 style={{ margin: '0 0 0.5rem 0' }}>{result.title}</h3>
+            <p style={{ margin: '0 0 0.5rem 0' }}>
+              Price: ${result.price || 'N/A'}
+            </p>
+            <p style={{ margin: '0 0 0.5rem 0' }}>
+              Rating: {result.rating}
+            </p>
+            {summaries[index]?.results && (
+              <p style={{ margin: '0 0 0.5rem 0' }}>
+                Summary: {summaries[index].results}
+              </p>
+            )}
             <a 
-              href={product.product_url} 
+              href={result.product_url} 
               target="_blank" 
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:underline mt-2 block"
+              rel="noopener noreferrer" 
+              style={{ 
+                color: '#007bff', 
+                textDecoration: 'none' 
+              }}
             >
               View Product
             </a>
-          )}
+          </div>
         </div>
       ))}
     </div>
