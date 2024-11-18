@@ -8,6 +8,7 @@ venv/
 venv3/
 .venv/
 .pytest_cache
+.env.next
 
 # JavaScript
 bundle.js
