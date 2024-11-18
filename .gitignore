@@ -9,6 +9,8 @@ venv3/
 .venv/
 .pytest_cache
 .env
+.env.backend
+.end.local
 .next
 
 # JavaScript
